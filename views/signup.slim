@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+    head
+        meta charset="UTF-8"/
+        meta http-equiv="X-UA-Compatible" content="IE=edge"/
+        meta name="viewport" content="width=device-width, initial-scale=1.0"/
+        title Login
+    body
+        h1 Signup
+        p Please signup to continue.
+
+        - if session[:error]
+            p.error = session[:error]["signup"]
+
+        - p = session.dig(:error, "fields")
+
+        form action="/signup" method="post"
+            label for="name" Username
+            input type="text" name="name" id="name" defaultValue="#{session.dig(:error, "fields", "name") || ""}"/
+            label for="email" Email
+            input type="email" name="email" id="email" defaultValue="#{session.dig(:error, "fields", "email") || ""}"/
+            label for="password" Password
+            input type="password" name="password" id="password" defaultValue="#{session.dig(:error, "fields", "password") || ""}"/
+            input type="submit" value="Signup"/
