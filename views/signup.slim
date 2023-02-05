@@ -9,16 +9,14 @@
         h1 Signup
         p Please signup to continue.
 
-        - if session[:error]
-            p.error = session[:error]["signup"]
-
-        - p = session.dig(:error, "fields")
+        p = @errors&.fetch(:signup, "")
+        - p @errors
 
         form action="/signup" method="post"
             label for="name" Username
-            input type="text" name="name" id="name" defaultValue="#{session.dig(:error, "fields", "name") || ""}"/
+            input type="text" name="name" id="name" value="#{@values&.fetch(:name, "")}"/
             label for="email" Email
-            input type="email" name="email" id="email" defaultValue="#{session.dig(:error, "fields", "email") || ""}"/
+            input type="email" name="email" id="email" value="#{@values&.fetch(:email, "")}"/
             label for="password" Password
-            input type="password" name="password" id="password" defaultValue="#{session.dig(:error, "fields", "password") || ""}"/
+            input type="password" name="password" id="password" value="#{@values&.fetch(:password, "")}"/
             input type="submit" value="Signup"/
