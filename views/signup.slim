@@ -13,10 +13,16 @@
         - p @errors
 
         form action="/signup" method="post"
-            label for="name" Username
-            input type="text" name="name" id="name" value="#{@values&.fetch(:name, "")}"/
-            label for="email" Email
-            input type="email" name="email" id="email" value="#{@values&.fetch(:email, "")}"/
-            label for="password" Password
-            input type="password" name="password" id="password" value="#{@values&.fetch(:password, "")}"/
-            input type="submit" value="Signup"/
+            div
+                p = @errors&.fetch(:name, "")
+                label for="name" Username
+                input type="text" name="name" id="name" value="#{@values&.fetch(:name, "")}"/
+            div
+                p = @errors&.fetch(:email, "")
+                label for="email" Email
+                input type="email" name="email" id="email" value="#{@values&.fetch(:email, "")}"/
+            div
+                label for="password" Password
+                input type="password" name="password" id="password" value="#{@values&.fetch(:password, "")}"/
+            div
+                input type="submit" value="Signup"/

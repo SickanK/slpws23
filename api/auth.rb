@@ -26,7 +26,7 @@ post("/login") do
   # Check if fields are not empty
 
   if (email == "" || email == nil || password == "" || password == nil)
-    session[:errors] = { "login" => "Du måste fylla i alla fält" }
+    session[:errors][:login] = "Du måste fylla i alla fält"
 
     redirect("/")
   end
@@ -67,16 +67,16 @@ post("/signup") do
   # Check if user already exists
 
   if (name == "" || name == nil || email == "" || email == nil || password == "" || password == nil)
-    session[:errors] = { :signup => "Du måste fylla i alla fält" }
+    session[:errors][:signup] = "Du måste fylla i alla fält"
 
     redirect("/signup")
   elsif (password.length < 8)
-    session[:errors] = { :signup => "Lösenordet måste vara minst 8 tecken" }
+    session[:errors][:signup] = "Lösenordet måste vara minst 8 tecken"
     session[:values][:password] = ""
 
     redirect("/signup")
   elsif (name.include? "@")
-    session[:errors] = { :signup => "Namnet får inte innehålla @-tecken" }
+    session[:errors][:signup] = "Namnet får inte innehålla @-tecken"
     session[:values][:password] = ""
 
     redirect("/signup")
@@ -94,12 +94,12 @@ post("/signup") do
     redirect("/")
   rescue Exception => e
     if e.message.include? "name"
-      session[:errors] = { :name => "Användarnamnet är redan upptagen" }
+      session[:errors][:name] = "Användarnamnet är redan upptagen"
       session[:values][:name] = ""
     end
 
     if e.message.include? "email"
-      session[:errors] = { :email => "E-postadressen är redan upptagen" }
+      session[:errors][:email] = "E-postadressen är redan upptagen"
       session[:values][:email] = ""
     end
 
