@@ -4,6 +4,7 @@ require "sinatra/reloader"
 require "slim"
 require "sqlite3"
 require_relative "api/auth.rb"
+require_relative "api/posts.rb"
 
 enable :sessions
 
@@ -18,7 +19,13 @@ helpers do
 end
 
 before do
-  # middleware
+  PROTCTED_ROUTES = ["/test"]
+
+  if PROTECTED_ROUTES.include?(request.path_info)
+    if session[:user_id] == nil
+      redirect("/login")
+    end
+  end
 end
 
 get "/" do

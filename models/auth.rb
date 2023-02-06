@@ -1,4 +1,5 @@
 require "date"
+require "sinatra/reloader"
 require_relative "../app.rb"
 
 def connect_to_db()
@@ -7,7 +8,7 @@ def connect_to_db()
   return db
 end
 
-def new_user(name, email, password)
+def new_user(name, email, password_digest)
   db = connect_to_db()
 
   # Hash password
@@ -15,15 +16,17 @@ def new_user(name, email, password)
 
   # Insert user into database
   begin
-    db.execute("INSERT INTO User (name, email, password_hash, created_at) VALUES (?, ?, ?, ?)", [name, email, password, created_at])
-  rescue SQLite3::ConstraintException
+    db.execute("INSERT INTO User (name, email, password_digest, created_at) VALUES (?, ?, ?, ?)", [name, email, password_digest, created_at])
+    p "User created"
+  rescue SQLite3::ConstraintException => e
+    p e
     conflict = []
 
     if db.execute("SELECT COUNT(*) FROM User WHERE name = ?", [name]).first[0] > 0
-      conflict << "name"
+      conflict << "conflict:name"
     end
     if db.execute("SELECT COUNT(*) FROM User WHERE email = ?", [email]).first[0] > 0
-      conflict << "email"
+      conflict << "conflict:email"
     end
 
     db.close
