@@ -9,19 +9,22 @@
         h1 Signup
         p Please signup to continue.
 
-        p = @errors&.fetch(:signup, "")
+        p = error(:general)
+
+        - p @errors
 
         form action="/signup" method="post"
             div
-                p = @errors&.fetch(:name, "")
+                p = error(:name)
                 label for="name" Username
-                input type="text" name="name" id="name" value="#{@values&.fetch(:name, "")}"/
+                input type="text" name="name" id="name" value="#{value(:name)}"/
             div
-                p = @errors&.fetch(:email, "")
+                p = error(:email)
                 label for="email" Email
-                input type="email" name="email" id="email" value="#{@values&.fetch(:email, "")}"/
+                input type="email" name="email" id="email" value="#{value(:email)}"/
             div
+                p = error(:password)
                 label for="password" Password
-                input type="password" name="password" id="password" value="#{@values&.fetch(:password, "")}"/
+                input type="password" name="password" id="password" value="#{value(:password)}"/
             div
                 input type="submit" value="Signup"/

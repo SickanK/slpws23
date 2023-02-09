@@ -5,6 +5,8 @@ require "securerandom"
 require "sinatra"
 require "sinatra/reloader"
 require "bcrypt"
+require_relative "../utils/rate_limiter.rb"
+require_relative "../utils/form.rb"
 require_relative "../models/auth.rb"
 
 # Login
@@ -17,16 +19,28 @@ get("/login") do
 end
 
 post("/login") do
-  email = params[:email].strip
-  password = params[:password].strip
+  rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
+  form = FormValidator.new(params)
 
-  session[:errors] = {}
-  session[:values] = { :email => email, :password => password }
+  # Validate form
 
-  # Check if fields are not empty
+  form.validate(:email) do |email|
+    raise "Du måste fylla i fältet" if email.empty?
+    raise "E-postadressen måste vara giltig" if !email.include? "@"
+  end
 
-  if (email == "" || email == nil || password == "" || password == nil)
-    session[:errors][:login] = "Du måste fylla i alla fält"
+  form.validate(:password) do |password|
+    raise "Du måste fylla i fältet" if password.empty?
+  end
+
+  if !form.success?
+    rate_limiter.call()
+    form.error(:general, true) do
+      raise "Du har gjort för många misslyckade försök. Vänta en liten stund innan du försöker igen." if rate_limiter.limit_exceeded?
+    end
+
+    session[:errors] = form.errors
+    session[:values] = form.values
     redirect("/login")
   end
 
@@ -35,21 +49,30 @@ post("/login") do
   result = get_user(email)
   password_digest = result["password_digest"]
 
-  p password_digest
-  p password
+  form.validate(:password) do |password|
+    if result == nil
+      form.error(:general) { raise "Fel användarnamn eller lösenord" }
+      return
+    end
 
-  # Check if password is correct
-  if result && BCrypt::Password.new(password_digest) == password
-    session[:user_id] = result["user_id"]
-    session[:error] = nil
+    raise "Fel användarnamn eller lösenord" if !BCrypt::Password.new(password_digest) == password
+  end
 
-    session.delete(:errors)
-    session.delete(:values)
-    redirect("/")
-  else
-    session[:error][:login] = "Fel användarnamn eller lösenord"
+  if !form.success?
+    rate_limiter.call()
+    form.error(:general, true) do
+      raise "Du har gjort för många misslyckade försök. Vänta en liten stund innan du försöker igen." if rate_limiter.limit_exceeded?
+    end
+
+    session[:errors] = form.errors
+    session[:values] = form.values
     redirect("/login")
   end
+
+  session[:user_id] = result["user_id"]
+  session.delete(:errors)
+  session.delete(:values)
+  redirect("/")
 end
 
 # Signup
@@ -62,60 +85,62 @@ get("/signup") do
 end
 
 post("/signup") do
-  name = params[:name].strip
-  email = params[:email].strip
-  password = params[:password].strip
+  rate_limiter = RateLimiter.new(REDIS, request, 8, 10)
+  form = FormValidator.new(params)
 
-  session[:errors] = {}
-  session[:values] = { :name => name, :email => email, :password => password }
+  # Validate form
 
-  # Check if user already exists
+  form.validate(:name) do |name|
+    raise "Du måste fylla i fältet" if name.empty?
+    raise "Namnet får inte innehålla @-tecken" if name.include? "@"
+  end
 
-  if (name == "" || name == nil || email == "" || email == nil || password == "" || password == nil)
-    session[:errors][:signup] = "Du måste fylla i alla fält"
+  form.validate(:email) do |email|
+    raise "Du måste fylla i fältet" if email.empty?
+    raise "E-postadressen måste vara giltig" if !email.include? "@"
+  end
 
+  form.validate(:password) do |password|
+    raise "Du måste fylla i fältet" if password.empty?
+    raise "Lösenordet måste vara minst 8 tecken" if password.length < 8
+  end
+
+  # Check if form is valid
+
+  if !form.success?
+    rate_limiter.call()
+    form.error(:general, true) do
+      raise "Du har gjort för många misslyckade försök. Vänta en liten stund innan du försöker igen." if rate_limiter.limit_exceeded?
+    end
+
+    session[:errors] = form.errors
+    session[:values] = form.values
     redirect("/signup")
-  elsif (password.length < 8)
-    session[:errors][:signup] = "Lösenordet måste vara minst 8 tecken"
-    session[:values][:password] = ""
-
-    redirect("/signup")
-  elsif (name.include? "@")
-    session[:errors][:signup] = "Namnet får inte innehålla @-tecken"
-    session[:values][:name] = ""
-
-    redirect("/signup")
-  else
-    session[:error] = nil
   end
 
   # Add user to database
 
-  password_digest = BCrypt::Password.create(password)
+  password_digest = BCrypt::Password.create(form.values[:password])
 
   begin
-    new_user = new_user(name, email, password_digest)
-
+    new_user = new_user(form.values[:name], form.values[:email], password_digest)
     session[:user_id] = new_user
 
     session.delete(:errors)
     session.delete(:values)
     redirect("/")
   rescue Exception => e
-    if e.message.include? "conflict:name" or e.message.include? "conflict:email"
-      if e.message.include? "conflict:name"
-        session[:errors][:name] = "Användarnamnet är redan upptagen"
-        session[:values][:name] = ""
-      end
+    form.error(:name) { raise "Användarnamnet finns redan" if e.message.include? "conflict:name" }
+    form.error(:email) { raise "E-postadressen finns redan" if e.message.include? "conflict:email" }
+    form.error(:general) { raise "Något gick fel, försök igen" } if form.success?
 
-      if e.message.include? "conflict:email"
-        session[:errors][:email] = "E-postadressen är redan upptagen"
-        session[:values][:email] = ""
-      end
-    else
-      session[:errors][:signup] = "Något gick fel, försök igen"
+    rate_limiter.call()
+    form.error(:general, true) do
+      raise "Du har gjort för många misslyckade försök. Vänta en liten stund innan du försöker igen." if rate_limiter.limit_exceeded?
     end
 
+    session[:errors] = form.errors
+    session[:values] = form.values
     redirect("/signup")
   end
 end
