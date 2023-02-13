@@ -2,6 +2,6 @@ require "securerandom"
 require "sinatra"
 require "sinatra/reloader"
 
-get("/test") do
-  slim(:test)
+get("/app") do
+  slim(:app)
 end

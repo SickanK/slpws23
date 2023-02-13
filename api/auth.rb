@@ -15,7 +15,7 @@ get("/login") do
   @errors = session.delete(:errors)
   @values = session.delete(:values)
 
-  slim(:login)
+  slim(:"auth/login")
 end
 
 post("/login") do
@@ -33,46 +33,29 @@ post("/login") do
     raise "Du måste fylla i fältet" if password.empty?
   end
 
-  if !form.success?
-    rate_limiter.call()
-    form.error(:general, true) do
-      raise "Du har gjort för många misslyckade försök. Vänta en liten stund innan du försöker igen." if rate_limiter.limit_exceeded?
-    end
-
-    session[:errors] = form.errors
-    session[:values] = form.values
-    redirect("/login")
-  end
+  send_response(form, rate_limiter, "/login") if !form.success?
 
   # Get user from database
 
-  result = get_user(email)
-  password_digest = result["password_digest"]
+  result = get_user(form.values[:email])
 
   form.validate(:password) do |password|
     if result == nil
       form.error(:general) { raise "Fel användarnamn eller lösenord" }
-      return
+    else
+      password_digest = result["password_digest"]
+      raise "Fel användarnamn eller lösenord" if !BCrypt::Password.new(password_digest) == password
     end
-
-    raise "Fel användarnamn eller lösenord" if !BCrypt::Password.new(password_digest) == password
   end
 
-  if !form.success?
-    rate_limiter.call()
-    form.error(:general, true) do
-      raise "Du har gjort för många misslyckade försök. Vänta en liten stund innan du försöker igen." if rate_limiter.limit_exceeded?
-    end
+  send_response(form, rate_limiter, "/login") if !form.success?
 
-    session[:errors] = form.errors
-    session[:values] = form.values
-    redirect("/login")
-  end
+  # Login user
 
   session[:user_id] = result["user_id"]
   session.delete(:errors)
   session.delete(:values)
-  redirect("/")
+  redirect("/app")
 end
 
 # Signup
@@ -81,7 +64,7 @@ get("/signup") do
   @errors = session.delete(:errors)
   @values = session.delete(:values)
 
-  slim(:signup)
+  slim(:"auth/signup")
 end
 
 post("/signup") do
@@ -97,26 +80,17 @@ post("/signup") do
 
   form.validate(:email) do |email|
     raise "Du måste fylla i fältet" if email.empty?
-    raise "E-postadressen måste vara giltig" if !email.include? "@"
+    raise "E-postadressen är inte giltig" if !email.include? "@"
   end
 
   form.validate(:password) do |password|
     raise "Du måste fylla i fältet" if password.empty?
-    raise "Lösenordet måste vara minst 8 tecken" if password.length < 8
+    raise ClearField, "Lösenordet måste vara minst 8 tecken" if password.length < 8
   end
 
   # Check if form is valid
 
-  if !form.success?
-    rate_limiter.call()
-    form.error(:general, true) do
-      raise "Du har gjort för många misslyckade försök. Vänta en liten stund innan du försöker igen." if rate_limiter.limit_exceeded?
-    end
-
-    session[:errors] = form.errors
-    session[:values] = form.values
-    redirect("/signup")
-  end
+  send_response(form, rate_limiter, "/signup") if !form.success?
 
   # Add user to database
 
@@ -128,19 +102,12 @@ post("/signup") do
 
     session.delete(:errors)
     session.delete(:values)
-    redirect("/")
+    redirect("/app")
   rescue Exception => e
-    form.error(:name) { raise "Användarnamnet finns redan" if e.message.include? "conflict:name" }
-    form.error(:email) { raise "E-postadressen finns redan" if e.message.include? "conflict:email" }
+    form.error(:name) { raise ClearField, "Användarnamnet används redan" if e.message.include? "conflict:name" }
+    form.error(:email) { raise ClearField, "E-postadressen används redan" if e.message.include? "conflict:email" }
     form.error(:general) { raise "Något gick fel, försök igen" } if form.success?
 
-    rate_limiter.call()
-    form.error(:general, true) do
-      raise "Du har gjort för många misslyckade försök. Vänta en liten stund innan du försöker igen." if rate_limiter.limit_exceeded?
-    end
-
-    session[:errors] = form.errors
-    session[:values] = form.values
-    redirect("/signup")
+    send_response(form, rate_limiter, "/signup") if !form.success?
   end
 end

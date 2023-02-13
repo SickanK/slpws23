@@ -1,0 +1,140 @@
+/* Drawer */
+
+.drawer {
+    position: relative;
+    display: block;
+}
+
+.drawer[open] {
+    border-color: #aaa;
+}
+
+/* Drawer placements */
+
+.drawer[data-placement="right"] {
+    border-left: 1px solid #ddd;
+    height: 100%;
+    width: 50px;
+}
+
+.drawer[data-placement="right"][open] {
+    border-color: #aaa;
+    width: 200px;
+}
+
+.drawer[data-placement="left"] {
+    border-right: 1px solid #ddd;
+    height: 100%;
+    width: 50px;
+}
+
+.drawer[data-placement="left"][open] {
+    border-color: #aaa;
+    width: 200px;
+}
+
+.drawer[data-placement="top"] {
+    border-bottom: 1px solid #ddd;
+    height: 50px;
+    width: 100%;
+}
+
+.drawer[data-placement="top"][open] {
+    border-color: #aaa;
+    height: 200px;
+}
+
+.drawer[data-placement="bottom"] {
+    border-top: 1px solid #ddd;
+    height: 50px;
+    width: 100%;
+}
+
+.drawer[data-placement="bottom"][open] {
+    border-color: #aaa;
+    height: 200px;
+}
+
+/* Drawer handle */
+
+.drawer__handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: absolute;
+
+    border: none;
+    background: #fff;
+    border-radius: 999px;
+    box-shadow: 0 0 0 1px #ddd;
+
+    cursor: pointer;
+    height: 32px;
+    width: 32px;
+}
+
+.drawer__handle::marker {
+    display: none;
+}
+
+.drawer[open] > .drawer__handle {
+    background: #ddd;
+}
+
+/* Drawer handle positioning */
+
+.drawer[data-placement="left"] > .drawer__handle {
+    top: 50px;
+    right: 0;
+    transform: translateX(50%);
+}
+
+.drawer[data-placement="right"] > .drawer__handle {
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.drawer[data-placement="top"] > .drawer__handle {
+    left: 50%;
+    transform: translate(-50%, 50%);
+}
+
+.drawer[data-placement="bottom"] > .drawer__handle {
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Drawer handle icon */
+
+.drawer[data-placement="left"][open] > .drawer__handle svg {
+    transform: rotateY(180deg);
+}
+
+.drawer[data-placement="right"] > .drawer__handle svg {
+    transform: rotateY(180deg);
+}
+
+.drawer[data-placement="right"][open] > .drawer__handle svg {
+    transform: rotateY(0deg);
+}
+
+.drawer[data-placement="top"][open] > .drawer__handle svg {
+    transform: rotateX(180deg);
+}
+
+.drawer[data-placement="bottom"] > .drawer__handle svg {
+    transform: rotateX(180deg);
+}
+
+.drawer[data-placement="bottom"][open] > .drawer__handle svg {
+    transform: rotateX(0deg);
+}
+
+/* Drawer content */
+
+.drawer__content {
+    display: inline;
+    height: 100%;
+    width: 100%;
+}

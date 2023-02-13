@@ -4,27 +4,25 @@
         meta charset="UTF-8"/
         meta http-equiv="X-UA-Compatible" content="IE=edge"/
         meta name="viewport" content="width=device-width, initial-scale=1.0"/
-        title Login
+        title Sign up
     body
         h1 Signup
         p Please signup to continue.
 
         p = error(:general)
 
-        - p @errors
-
         form action="/signup" method="post"
             div
                 p = error(:name)
                 label for="name" Username
-                input type="text" name="name" id="name" value="#{value(:name)}"/
+                input type="text" name="name" id="name" value=value(:name)
             div
                 p = error(:email)
                 label for="email" Email
-                input type="email" name="email" id="email" value="#{value(:email)}"/
+                input type="email" name="email" id="email" value=value(:email)
             div
                 p = error(:password)
                 label for="password" Password
-                input type="password" name="password" id="password" value="#{value(:password)}"/
+                input type="password" name="password" id="password" value=value(:password)
             div
-                input type="submit" value="Signup"/
+                button type="submit" Signup

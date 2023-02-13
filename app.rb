@@ -4,15 +4,14 @@ require "sinatra/reloader"
 require "slim"
 require "sqlite3"
 require_relative "api/auth.rb"
-require_relative "api/posts.rb"
+require_relative "api/app.rb"
 require "redis"
 
-# **TODO:**
-# FUTURE!!
-# - CREATE A HELPER FUNCTION THAT CHECKS THE RATELIMITER AND UPDATES the SESSION AUTOMATICALLY AT THE SAME TIME
-# COULD BE EXTENSIONS OF THE FORM VALIDATOR CLASS
-
 enable :sessions
+set :session_secret, "super secret"
+set :sessions, :expire_after => 2592000
+
+# Databaser
 
 REDIS = Redis.new(host: "localhost", port: 6379, db: 0)
 
@@ -22,7 +21,16 @@ def connect_to_db()
   return db
 end
 
+# Sinatra
+
 helpers do
+  # https://stackoverflow.com/questions/28005961/reusable-slim-with-parameters
+  def partial(name, locals: {}, path: "/partials")
+    captured_block = block_given? ? yield : nil
+    locals.merge!(:children => captured_block)
+    Slim::Template.new("#{settings.views}#{path}/#{name}.slim").render(self, locals)
+  end
+
   def value(key)
     @values&.fetch(key, "")
   end
@@ -33,7 +41,7 @@ helpers do
 end
 
 before do
-  protected_routes = ["/test"]
+  protected_routes = ["/app"]
 
   if protected_routes.include?(request.path_info)
     if session[:user_id] == nil
