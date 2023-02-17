@@ -44,6 +44,9 @@ post("/login") do
       form.error(:general) { raise "Fel användarnamn eller lösenord" }
     else
       password_digest = result["password_digest"]
+
+      p BCrypt::Password.new(password_digest) == password
+
       raise "Fel användarnamn eller lösenord" if !BCrypt::Password.new(password_digest) == password
     end
   end

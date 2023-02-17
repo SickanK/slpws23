@@ -3,6 +3,9 @@
 .drawer {
     position: relative;
     display: block;
+
+    --drawer-closed-size: 30px;
+    --handle-margin: 50px;
 }
 
 .drawer[open] {
@@ -14,45 +17,41 @@
 .drawer[data-placement="right"] {
     border-left: 1px solid #ddd;
     height: 100%;
-    width: 50px;
+    width: var(--drawer-closed-size);
 }
 
 .drawer[data-placement="right"][open] {
     border-color: #aaa;
-    width: 200px;
 }
 
 .drawer[data-placement="left"] {
     border-right: 1px solid #ddd;
     height: 100%;
-    width: 50px;
+    width: var(--drawer-closed-size);
 }
 
 .drawer[data-placement="left"][open] {
     border-color: #aaa;
-    width: 200px;
 }
 
 .drawer[data-placement="top"] {
     border-bottom: 1px solid #ddd;
-    height: 50px;
+    height: var(--drawer-closed-size);
     width: 100%;
 }
 
 .drawer[data-placement="top"][open] {
     border-color: #aaa;
-    height: 200px;
 }
 
 .drawer[data-placement="bottom"] {
     border-top: 1px solid #ddd;
-    height: 50px;
+    height: var(--drawer-closed-size);
     width: 100%;
 }
 
 .drawer[data-placement="bottom"][open] {
     border-color: #aaa;
-    height: 200px;
 }
 
 /* Drawer handle */
@@ -70,8 +69,8 @@
     box-shadow: 0 0 0 1px #ddd;
 
     cursor: pointer;
-    height: 32px;
-    width: 32px;
+    height: 28px;
+    width: 28px;
 }
 
 .drawer__handle::marker {
@@ -85,24 +84,27 @@
 /* Drawer handle positioning */
 
 .drawer[data-placement="left"] > .drawer__handle {
-    top: 50px;
+    top: var(--handle-margin);
     right: 0;
     transform: translateX(50%);
 }
 
 .drawer[data-placement="right"] > .drawer__handle {
-    top: 50%;
-    transform: translate(-50%, -50%);
+    top: var(--handle-margin);
+    left: 0;
+    transform: translateX(-50%);
 }
 
 .drawer[data-placement="top"] > .drawer__handle {
-    left: 50%;
-    transform: translate(-50%, 50%);
+    right: var(--handle-margin);
+    transform: translateY(50%);
+    bottom: 0;
 }
 
 .drawer[data-placement="bottom"] > .drawer__handle {
-    left: 50%;
-    transform: translate(-50%, -50%);
+    right: var(--handle-margin);
+    transform: translateY(-50%);
+    top: 0;
 }
 
 /* Drawer handle icon */
@@ -116,19 +118,19 @@
 }
 
 .drawer[data-placement="right"][open] > .drawer__handle svg {
-    transform: rotateY(0deg);
+    transform: rotateZ(90deg);
 }
 
 .drawer[data-placement="top"][open] > .drawer__handle svg {
-    transform: rotateX(180deg);
+    transform: rotateZ(270deg);
 }
 
 .drawer[data-placement="bottom"] > .drawer__handle svg {
-    transform: rotateX(180deg);
+    transform: rotateZ(270deg);
 }
 
 .drawer[data-placement="bottom"][open] > .drawer__handle svg {
-    transform: rotateX(0deg);
+    transform: rotateZ(90deg);
 }
 
 /* Drawer content */

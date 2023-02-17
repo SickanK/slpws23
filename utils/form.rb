@@ -50,7 +50,7 @@ end
 def send_response(form, rate_limiter, redirect_path)
   rate_limiter.call()
   if rate_limiter.limit_exceeded?
-    form.error(:General, true) do
+    form.error(:general, true) do
       raise "Too many failed attempts. Please wait a moment before trying again."
     end
   end

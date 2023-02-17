@@ -31,6 +31,35 @@ helpers do
     Slim::Template.new("#{settings.views}#{path}/#{name}.slim").render(self, locals)
   end
 
+  # According the mdn docs, all css should be rendered in the head tag. Otherwise, inline rendering would have worked perfectly fine.
+  # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/style
+  def css(name = nil, render_inline = false)
+    css_content = yield if block_given?
+    return if css_content.nil?
+
+    # If no name is given, just return the content
+    return css_content if name.nil?
+
+    # https://stackoverflow.com/questions/1634750/ruby-function-to-remove-all-white-spaces
+    stripped_css_content = css_content.gsub(/\s+/, "").strip
+
+    if @partials_rendered[name]&.include?(stripped_css_content)
+      return css_content if render_inline
+      return
+    end
+
+    # If the content is not rendered yet, add it to the list of rendered content
+    @partials_rendered[name] ||= []
+    @partials_rendered[name] << stripped_css_content
+
+    # If the content should be rendered inline, return it
+    return css if render_inline
+
+    # Otherwise, add it to the style tag
+    @style += css_content.delete_prefix("<style type=\"text/css\">").delete_suffix("</style>")
+    return ""
+  end
+
   def value(key)
     @values&.fetch(key, "")
   end
@@ -42,6 +71,9 @@ end
 
 before do
   protected_routes = ["/app"]
+
+  @partials_rendered = {}
+  @style = ""
 
   if protected_routes.include?(request.path_info)
     if session[:user_id] == nil

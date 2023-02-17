@@ -2,7 +2,10 @@
     header.app__header
         h2 Personal Knowledge Management System
 
-    == partial :drawer, locals: { className: "app__sidebar", placement: "left" } do
+    == partial :drawer, locals: { class_name: "app__sidebar", placement: "left", size: "200px"  } do
         h1 Personal Knowledge Management System
 
     main.app__main
+
+    == partial :drawer, locals: { class_name: "app__bottom-drawer", placement: "bottom", size: "200px"  } do
+        h1 Personal Knowledge Management System
