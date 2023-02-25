@@ -1,0 +1,18 @@
+form method="post" action="/post/new"
+    div
+        p = error(:title)
+        label for="title" Title
+        input type="text" name="title" id="title" value=value(:title)
+    div
+        p = error(:content)
+        label for="content" Content
+        textarea name="content" id="content"
+            == value(:content)
+    div 
+        p = error(:database_id)
+        label for="database_id" Database
+        select name="database_id" id="database_id"
+            - @databases&.each do |database|
+                option value=database["id"] = database["name"]
+    div 
+        button type="submit" Add New Post

@@ -15,7 +15,7 @@ get("/login") do
   @errors = session.delete(:errors)
   @values = session.delete(:values)
 
-  slim(:"auth/login")
+  slim(:"routes/auth/login")
 end
 
 post("/login") do
@@ -67,7 +67,7 @@ get("/signup") do
   @errors = session.delete(:errors)
   @values = session.delete(:values)
 
-  slim(:"auth/signup")
+  slim(:"routes/auth/signup")
 end
 
 post("/signup") do
