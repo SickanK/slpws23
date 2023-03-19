@@ -8,6 +8,10 @@ form method="post" action="/post/new"
         label for="content" Content
         textarea name="content" id="content"
             == value(:content)
+    div
+        p = error(:tags)
+        label for="tags" Tags
+        input type="text" name="tags" id="tags" value=value(:tags)
     div 
         p = error(:database_id)
         label for="database_id" Database

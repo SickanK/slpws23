@@ -4,16 +4,21 @@ html lang="en"
         meta charset="UTF-8"/
         meta http-equiv="X-UA-Compatible" content="IE=edge"/
         meta name="viewport" content="width=device-width, initial-scale=1.0"/
-        link rel="stylesheet" href="/css/index.css"
-        link rel="stylesheet" href="/css/app.css"
         title App
+
+        link rel="preconnect" href="https://fonts.googleapis.com"
+        link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=true
+        link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"
 
         / Register partials used in this particular layout. NOT in its child views (==yield). A bit annoying, but it works.
         == partial :drawer, register: true, locals: { class_name: "app__sidebar", placement: "left", size: "250px", open: true  }
-        == partial :drawer, register: true, locals: { class_name: "app__bottom-drawer", placement: "bottom", size: "200px", open: false }
+        == partial :accordion, register: true, locals: { class_name: "app__collection", title: "", open: false }
 
         - @stylesheet_paths.each do |path|
             link rel="stylesheet" href="/css/#{path}"
+
+        link rel="stylesheet" href="/css/index.css"
+        link rel="stylesheet" href="/css/app.css"
 
         css: 
             #{@style}
@@ -26,16 +31,19 @@ html lang="en"
 
             == partial :drawer, locals: { class_name: "app__sidebar", placement: "left", size: "250px", open: true  } do
                 h2 Databases
-                - @databases&.each do |database|
-                    h3 = database["name"]
-                    ul
-                        - database["posts"]&.each do |post|
-                            li 
-                                a href="/app/#{post["post_id"]}" = post["title"]
+                .app__databases
+                    - @databases&.each do |database|
+                        - is_open = @open_database == database["id"]
+                        == partial :accordion, locals: { class_name: "app__collection", title: database["name"], open: is_open } do
+                            ul
+                                - if !database["posts"].nil? && database["posts"].length > 0
+                                    - database["posts"]&.each do |post|
+                                        li class="app__post#{' app__post--active' if post["post_id"] == @open_post}"
+                                            a href="/app/#{post["post_id"]}" = post["title"]
+                                - else 
+                                    p No posts yet
 
-                hr
-
-                form method="post" action="/database/new"
+                form.app__create-database method="post" action="/database/new" 
                     div
                         p = error(:name)
                         label for="name" Name
@@ -44,6 +52,3 @@ html lang="en"
 
             main.app__main
                 == yield
-
-            == partial :drawer, locals: { class_name: "app__bottom-drawer", placement: "bottom", size: "200px", open: false  } do
-                h1 Personal Knowledge Management System

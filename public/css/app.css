@@ -1,12 +1,11 @@
 .app {
     display: grid;
-    grid-template-columns: auto 1fr 1fr;
-    grid-template-rows: 80px 1fr auto;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 80px 1fr;
     grid-template-areas:
-        "header header header"
-        "sidebar main main"
-        "sidebar bottom bottom";
-    height: 100%;
+        "header header"
+        "sidebar main";
+    height: 100vh;
     width: 100%;
 }
 
@@ -20,10 +19,70 @@
     grid-area: sidebar;
 }
 
-.app__main {
-    grid-area: main;
+.app__sidebar-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
 }
 
-.app__bottom-drawer {
-    grid-area: bottom;
+.app__sidebar h2 {
+    padding: 1rem;
+}
+
+.app__databases {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    padding-top: 0;
+
+    overflow-y: auto;
+    flex: 1;
+}
+
+.app__collection .accordion__title {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.app__collection .accordion__summary:hover .accordion__title {
+    text-decoration: underline;
+}
+
+.app__collection > .accordion__content {
+    padding-top: 0.2rem;
+    padding-left: 1rem;
+    padding-bottom: 1rem;
+}
+
+.app__collection > .accordion__content ul {
+    display: flex;
+    flex-direction: column;
+
+    list-style: none;
+}
+
+.app__post a {
+    display: inline-block;
+    width: 100%;
+    padding: 0.1rem 0;
+}
+
+.app__post--active a {
+    text-decoration: none;
+    background: #f5f5f5;
+}
+
+.app__create-database {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    padding: 1rem;
+    border-top: 1px solid #ccc;
+}
+
+.app__main {
+    grid-area: main;
 }

@@ -1,0 +1,7 @@
+== css('accordion')
+
+- if register == false
+    details.accordion class=class_name open=open
+        summary.accordion__summary
+            span.accordion__title = title
+        div.accordion__content class="#{class_name}-content" == children

@@ -136,7 +136,7 @@
 /* Drawer content */
 
 .drawer__content {
-    display: inline;
+    display: inline-block;
     height: 100%;
     width: 100%;
 }

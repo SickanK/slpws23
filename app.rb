@@ -40,7 +40,6 @@ helpers do
   # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/style
   def css(name = nil, render_inline = false)
     css_content = yield if block_given?
-    return if css_content.nil?
 
     # If no name is given, just return the content regardless of whether it has been rendered before or not or if it should be rendered inline
     if name.nil?
@@ -50,6 +49,8 @@ helpers do
       partial_path = "partials/#{name}.css"
       @stylesheet_paths << partial_path unless @stylesheet_paths.include?(partial_path)
     end
+
+    return if css_content.nil?
 
     # https://stackoverflow.com/questions/1634750/ruby-function-to-remove-all-white-spaces
     stripped_css_content = css_content.gsub(/\s+/, "").strip

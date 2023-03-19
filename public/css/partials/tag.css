@@ -1,0 +1,12 @@
+.tag {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    background: #eee;
+    color: black;
+    text-decoration: none;
+    border-radius: 0.6rem;
+}
+
+.tag:hover {
+    text-decoration: underline;
+}

@@ -1,4 +1,31 @@
 - link_css("app/view_post.css")
 
-h2 = @post["title"]
-p = @post["content"]
+header.view-post__header
+    h2 = @post["title"]
+    div.view-post__actions
+
+main.view-post__content
+    p = @post["content"]
+
+== partial :drawer, locals: { class_name: "view-post__bottom-drawer", placement: "bottom", size: "200px", open: !(@tags.nil? || @tags.empty?)  } do
+    h2 Tags
+    - if @tags.nil? || @tags.empty?
+        p No tags. Add a tag to this post.
+
+        form method="post" action="/tag/new"
+            div
+                p = error(:title)
+                label for="title" Title
+                input type="text" name="title" id="title" value=value(:title)
+            input type="hidden" name="post_id" value=@post["post_id"]
+            input type="hidden" name="database_id" value=@post["database_id"]
+            button type="submit" Add New Tag
+
+    - else
+        ul.view-post__tags
+            - @tags&.each do |tag|
+                li == partial :tag, locals: { id: tag["tag_id"], title: tag["title"] }
+            li == partial :reveal_input, locals: { endpoint: "/tag/new", placeholder: "Rename tag", button_text: "New Tag", submit_text: "Add tag" } do
+                input type="text" name="title" value=""
+                input type="hidden" name="post_id" value=@post["post_id"]
+                input type="hidden" name="database_id" value=@post["database_id"]

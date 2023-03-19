@@ -1,0 +1,68 @@
+.reveal-input {
+    display: inline;
+}
+
+.reveal-input__button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+
+    width: 32.8px;
+    height: 32.8px;
+
+    color: black;
+    background: #eee;
+
+    text-decoration: none;
+    border-radius: 99999px;
+    cursor: pointer;
+}
+
+.reveal-input__button:hover {
+    background: #ddd;
+}
+
+.reveal-input__form {
+    display: none;
+}
+
+.reveal-input[open] .reveal-input__plus-icon {
+    display: none;
+}
+
+.reveal-input__cross-icon {
+    display: none;
+}
+
+.reveal-input[open] .reveal-input__cross-icon {
+    display: inline-block;
+}
+
+.reveal-input[open] form {
+    display: inline-flex;
+    align-items: center;
+}
+
+.reveal-input__form input[type="text"] {
+    padding: 0.4rem;
+    border: 1px solid #ccc;
+    border-radius: 0.6rem;
+    margin-right: 0.5rem;
+    margin-left: 0.5rem;
+}
+
+.reveal-input__form button[type="submit"] {
+    padding: 0.4rem 0.8rem;
+    background: black;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 0.6rem;
+    cursor: pointer;
+}
+
+.reveal-input__form button[type="submit"]:hover {
+    background: #444;
+}
