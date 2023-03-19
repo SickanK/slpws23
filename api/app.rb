@@ -16,6 +16,8 @@ before "/app*" do
     redirect("/login")
   end
 
+  @database_tags = get_tags_for_database(session[:user_id])
+
   databases = get_databases(session[:user_id])
   @databases = databases.map { |database| { "name" => database["name"], "id" => database["database_id"], "posts" => database["posts"] } }
   @open_database = nil

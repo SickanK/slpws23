@@ -16,7 +16,6 @@
 
 .drawer[data-placement="right"] {
     border-left: 1px solid #ddd;
-    height: 100%;
     width: var(--drawer-closed-size);
 }
 
@@ -26,7 +25,6 @@
 
 .drawer[data-placement="left"] {
     border-right: 1px solid #ddd;
-    height: 100%;
     width: var(--drawer-closed-size);
 }
 
@@ -37,7 +35,6 @@
 .drawer[data-placement="top"] {
     border-bottom: 1px solid #ddd;
     height: var(--drawer-closed-size);
-    width: 100%;
 }
 
 .drawer[data-placement="top"][open] {
@@ -47,7 +44,6 @@
 .drawer[data-placement="bottom"] {
     border-top: 1px solid #ddd;
     height: var(--drawer-closed-size);
-    width: 100%;
 }
 
 .drawer[data-placement="bottom"][open] {

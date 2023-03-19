@@ -42,6 +42,10 @@ html lang="en"
                                             a href="/app/#{post["post_id"]}" = post["title"]
                                 - else 
                                     p No posts yet
+                h2 Tags
+                ul.app__tags
+                    - @database_tags&.each do |tag|
+                        li == partial :tag, locals: { id: tag["tag_id"], title: tag["title"] }
 
                 form.app__create-database method="post" action="/database/new" 
                     div
@@ -49,6 +53,7 @@ html lang="en"
                         label for="name" Name
                         input type="text" name="name" id="name" value=value(:name)
                     button type="submit" Add New Database
+
 
             main.app__main
                 == yield

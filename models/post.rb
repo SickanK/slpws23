@@ -73,3 +73,19 @@ def get_tags_for_post(post_id)
 
   return tags
 end
+
+# get all tags for database
+def get_tags_for_database(user_id)
+  db = connect_to_db()
+
+  tags = db.execute(%{
+    SELECT * FROM Tag
+    INNER JOIN TagDatabaseRel ON Tag.tag_id = TagDatabaseRel.tag_id
+    INNER JOIN Database ON TagDatabaseRel.database_id = Database.database_id
+    INNER JOIN UserDatabaseRel ON Database.database_id = UserDatabaseRel.database_id
+    WHERE UserDatabaseRel.user_id = ?
+  }.gsub(/\s+/, " ").strip, [user_id])
+  db.close
+
+  return tags
+end
