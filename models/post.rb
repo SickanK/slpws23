@@ -5,6 +5,7 @@ def new_post(title, content, database_id)
 
   db.execute("INSERT INTO Post (title, content, created_at, database_id) VALUES (?, ?, ?, ?)", [title, content, created_at, database_id])
   new_post_id = db.last_insert_row_id
+
   db.close
 
   return new_post_id
@@ -22,6 +23,14 @@ end
 # Tags
 def titleize(string)
   string.split.map(&:capitalize).join(" ")
+end
+
+def get_tag(tag_id)
+  db = connect_to_db()
+  tag = db.execute("SELECT * FROM Tag WHERE tag_id = ?", [tag_id]).first
+  db.close
+
+  return tag
 end
 
 def get_tag_id(tag)
@@ -49,14 +58,16 @@ end
 
 def add_tags_to_post_and_database(post_id, database_id, tags)
   db = connect_to_db()
-  db.transaction do
-    tags.each do |tag|
-      tag_id = add_tag_if_not_exist(tag)
 
+  tag_ids = tags.map { |tag| add_tag_if_not_exist(tag) }
+
+  db.transaction do
+    tag_ids.each_with_index do |tag_id, index|
       db.execute("INSERT OR IGNORE INTO PostTagRel (post_id, tag_id) VALUES (?, ?)", [post_id, tag_id])
       db.execute("INSERT OR IGNORE INTO TagDatabaseRel (database_id, tag_id) VALUES (?, ?)", [database_id, tag_id])
     end
   end
+
   db.close
 end
 
@@ -88,4 +99,67 @@ def get_tags_for_database(user_id)
   db.close
 
   return tags
+end
+
+# get al posts for tag
+
+def get_posts_for_tag(tag_id)
+  db = connect_to_db()
+
+  post_results = db.execute(%{
+    SELECT
+      Post.post_id,
+      Post.title,
+      Post.content
+    FROM
+      Post
+      INNER JOIN PostTagRel ON Post.post_id = PostTagRel.post_id
+    WHERE
+      PostTagRel.tag_id = ?
+}, [tag_id])
+
+  posts = {}
+
+  post_results.each do |result|
+    post_id = result["post_id"]
+    title = result["title"]
+    content = result["content"]
+    posts[post_id] = { "post_id" => post_id, "title" => title, "content" => content, "tags" => [] }
+  end
+
+  post_ids = posts.keys
+  placeholders = post_ids.map { "?" }.join(", ")
+
+  tag_results = db.execute(%{
+    SELECT
+      Post.post_id,
+      Tag.tag_id,
+      Tag.title as tag_title
+    FROM
+      Post
+      INNER JOIN PostTagRel ON Post.post_id = PostTagRel.post_id
+      INNER JOIN Tag ON PostTagRel.tag_id = Tag.tag_id
+    WHERE
+      Post.post_id IN (#{placeholders})
+}, post_ids)
+
+  db.close()
+
+  tag_results.each do |result|
+    post_id = result["post_id"]
+    tag_id = result["tag_id"]
+    tag_title = result["tag_title"]
+
+    posts[post_id]["tags"] << { "tag_id" => tag_id, "title" => tag_title }
+  end
+
+  return posts.values
+end
+
+def delete_tag(tag_id)
+  db = connect_to_db()
+  db.execute("DELETE FROM Tag WHERE tag_id = ?", [tag_id])
+  db.execute("DELETE FROM PostTagRel WHERE tag_id = ?", [tag_id])
+  db.execute("DELETE FROM TagDatabaseRel WHERE tag_id = ?", [tag_id])
+  db.close
 end

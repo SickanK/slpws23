@@ -13,6 +13,7 @@ html lang="en"
         / Register partials used in this particular layout. NOT in its child views (==yield). A bit annoying, but it works.
         == partial :drawer, register: true, locals: { class_name: "app__sidebar", placement: "left", size: "250px", open: true  }
         == partial :accordion, register: true, locals: { class_name: "app__collection", title: "", open: false }
+        == partial :tag, register: true, locals: { id: "", title: "" }
 
         - @stylesheet_paths.each do |path|
             link rel="stylesheet" href="/css/#{path}"

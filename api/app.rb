@@ -122,3 +122,26 @@ post("/tag/new") do
 
   redirect(request.referrer)
 end
+
+get("/app/tag/:tag_id") do
+  @tag = get_tag(params[:tag_id])
+  @posts = get_posts_for_tag(params[:tag_id])
+
+  slim(:"routes/app/view_tag", :layout => :"layouts/app")
+end
+
+post("/tag/delete") do
+  rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
+  form = FormValidator.new(params)
+
+  # Validate form
+  form.validate(:tag_id) do |tag_id|
+    raise "Hittade inget tag id" if tag_id.empty?
+  end
+
+  send_response(form, rate_limiter, request.referrer) if !form.success?
+
+  delete_tag(params[:tag_id])
+
+  redirect("/app")
+end

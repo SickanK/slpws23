@@ -1,0 +1,43 @@
+- link_css("app/view_tag.css")
+
+header.view-tag__header
+    h2 = @tag["title"]
+    form.view-tag__delete method="post" action="/tag/delete"
+        input type="hidden" name="tag_id" value=@tag["tag_id"]
+        button type="submit" Delete Tag
+
+
+main.view-tag__content
+    h3 Posts
+    - if @posts.nil? || @posts.empty?
+        p No posts. Add a post to this tag.
+
+        form method="post" action="/post/new"
+            div
+                p = error(:title)
+                label for="title" Title
+                input type="text" name="title" id="title" value=value(:title)
+            div
+                p = error(:content)
+                label for="content" Content
+                textarea name="content" id="content"
+                    == value(:content)
+            div
+                p = error(:tags)
+                label for="tags" Tags
+                input type="text" name="tags" id="tags" value=value(:tags)
+            div 
+                p = error(:database_id)
+                label for="database_id" Database
+                select name="database_id" id="database_id"
+                    - @databases&.each do |database|
+                        option value=database["id"] = database["name"]
+            input type="hidden" name="tags" value=@tag["title"]
+            div 
+                button type="submit" Add New Post
+
+    - else
+        ul.view-tag__posts
+            - @posts&.each do |post|
+                - tags_without_current = post["tags"].reject { |tag| tag["tag_id"] == @tag["tag_id"] }
+                li == partial :post, locals: { id: post["post_id"], title: post["title"], content: post["content"], tags: tags_without_current }

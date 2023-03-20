@@ -19,6 +19,7 @@ REDIS = Redis.new(host: "localhost", port: 6379, db: 0)
 def connect_to_db()
   db = SQLite3::Database.new("db/knowledgeManager.db")
   db.results_as_hash = true
+
   return db
 end
 

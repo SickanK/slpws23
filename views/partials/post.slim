@@ -1,0 +1,13 @@
+== css("post")
+
+- if register == false
+    div.post
+        a href="/app/#{id}"
+            p.post__title = title
+            p.post__content = content
+        - if !tags.nil? && tags.length > 0
+            details.post__details
+                summary Other tags
+                div.post__tags
+                    - tags&.each do |tag|
+                        == partial :tag, locals: { id: tag["tag_id"], title: tag["title"] }
