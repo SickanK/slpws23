@@ -1,0 +1,23 @@
+- link_css("app/edit_post.css")
+
+header.edit-post__header
+    h2 = @post["title"]
+    form method="post" action="/post/delete"
+        input type="hidden" name="post_id" value=@post["post_id"]
+        button type="submit" Delete post
+    a href="/app/#{@post["post_id"]}" Go back
+
+main.edit-post__content
+    form method="post" action="/post/edit"
+        div
+            p.error = error(:title)
+            label for="title" Title
+            input type="text" name="title" id="title" value=@post["title"]
+        div
+            p.error = error(:content)
+            label for="content" Content
+            textarea name="content" id="content" = @post["content"]
+        input type="hidden" name="post_id" value=@post["post_id"]
+        input type="hidden" name="database_id" value=@post["database_id"]
+        button type="submit" Save content
+        a href="/app/#{@post["post_id"]}" Cancel

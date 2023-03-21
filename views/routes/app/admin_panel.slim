@@ -1,0 +1,26 @@
+- link_css("app/admin_panel.css")
+
+header.admin-panel__header
+    h2 Admin
+
+main.admin-panel__content
+    h3.admin-panel-databases-title My Databases
+    p.error = error(:email)
+    ul.admin-panel__databases
+        - @owned_databases&.each do |database|
+            li
+                h4 = database["name"]
+                ul.admin-panel__database-viewers
+                    - database["viewers"]&.each do |viewer|
+                        li
+                            p = viewer["email"]
+                            form.admin-panel__remove-permission method="post" action="/database/user/remove"
+                                input type="hidden" name="user_id" value=viewer["user_id"]
+                                input type="hidden" name="database_id" value=database["database_id"]
+                                button type="submit" Remove permission
+
+                    form.admin-panel__add-permission method="post" action="/database/user/add"
+                        input type="email" name="email" value=value(:email)
+                        input type="hidden" name="database_id" value=database["database_id"]
+                        button type="submit" Add permission
+

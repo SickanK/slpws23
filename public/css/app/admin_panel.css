@@ -1,0 +1,50 @@
+.admin-panel__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.admin-panel__content {
+    display: block;
+    height: 100%;
+    padding: 1.5rem;
+    word-wrap: break-word;
+    overflow: auto;
+}
+
+.admin-panel-databases-title {
+    margin-bottom: 2rem;
+}
+
+.admin-panel__databases {
+    list-style-type: none;
+    padding: 0;
+}
+
+.admin-panel__databases li {
+    margin-bottom: 1.5rem;
+}
+
+.admin-panel__database-viewers {
+    display: block;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-panel__database-viewers li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.5rem 0;
+}
+
+.admin-panel__add-permission {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}

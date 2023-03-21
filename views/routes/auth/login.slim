@@ -5,11 +5,11 @@ p = error(:general)
 
 form action="/login" method="post"
     div
-        p = error(:email)
+        p.error = error(:email)
         label for="email" Email
         input type="email" name="email" id="email" value=value(:email)
     div
-        p = error(:password)
+        p.error = error(:password)
         label for="password" Password
         input type="password" name="password" id="password" value=value(:password)
     div

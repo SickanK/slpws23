@@ -1,0 +1,15 @@
+.edit-post__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.edit-post__content {
+    display: block;
+    height: 100%;
+    padding: 1.5rem;
+    word-wrap: break-word;
+    overflow: auto;
+}

@@ -21,7 +21,7 @@ p {
 
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 1rem;
     padding: 1.5rem;
     padding-bottom: 1rem;
 }
@@ -47,9 +47,42 @@ p {
 
 .view-post__tags {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.8rem;
     flex-wrap: wrap;
     width: 100%;
     margin-top: 1rem;
     list-style: none;
+}
+
+.view-post__tag {
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+}
+
+.view-post__remove button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    background: none;
+    height: 32.8px;
+    width: 32.8px;
+    border-radius: 0.6rem;
+
+    cursor: pointer;
+}
+
+.view-post__remove button:hover {
+    background: #eee;
+}
+
+.view-post__remove button:active {
+    background: #ddd;
+}
+
+.view-post__remove button svg {
+    height: 1.2rem;
+    width: 1.2rem;
 }

@@ -114,3 +114,8 @@ post("/signup") do
     send_response(form, rate_limiter, "/signup") if !form.success?
   end
 end
+
+post("/logout") do
+  session.delete(:user_id)
+  redirect("/")
+end

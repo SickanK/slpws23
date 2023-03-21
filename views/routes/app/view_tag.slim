@@ -14,20 +14,20 @@ main.view-tag__content
 
         form method="post" action="/post/new"
             div
-                p = error(:title)
+                p.error = error(:title)
                 label for="title" Title
                 input type="text" name="title" id="title" value=value(:title)
             div
-                p = error(:content)
+                p.error = error(:content)
                 label for="content" Content
                 textarea name="content" id="content"
                     == value(:content)
             div
-                p = error(:tags)
+                p.error = error(:tags)
                 label for="tags" Tags
                 input type="text" name="tags" id="tags" value=value(:tags)
             div 
-                p = error(:database_id)
+                p.error = error(:database_id)
                 label for="database_id" Database
                 select name="database_id" id="database_id"
                     - @databases&.each do |database|

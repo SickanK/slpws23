@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
     head
         meta charset="UTF-8"/
@@ -13,15 +12,15 @@
 
         form action="/signup" method="post"
             div
-                p = error(:name)
+                p.error = error(:name)
                 label for="name" Username
                 input type="text" name="name" id="name" value=value(:name)
             div
-                p = error(:email)
+                p.error = error(:email)
                 label for="email" Email
                 input type="email" name="email" id="email" value=value(:email)
             div
-                p = error(:password)
+                p.error = error(:password)
                 label for="password" Password
                 input type="password" name="password" id="password" value=value(:password)
             div

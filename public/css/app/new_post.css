@@ -1,29 +1,21 @@
-.app__main {
-    overflow: auto;
-}
-
-.view-tag__header {
+.new-post__header {
     display: flex;
     align-items: center;
     gap: 1rem;
     padding: 1.5rem;
     padding-bottom: 1rem;
-    height: 80px;
-    width: 100%;
 }
 
-.view-tag__content {
+.new-post__content {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding: 1.5rem;
     height: 100%;
-    width: 100%;
+    padding: 1.5rem;
 }
 
-.view-tag__posts {
+.new-post__content > div {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    list-style: none;
+    align-items: flex-start;
 }

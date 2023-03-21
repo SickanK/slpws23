@@ -27,8 +27,16 @@ html lang="en"
     body
         .app
             header.app__header
-                h2 Personal Knowledge Management System
-                a href="/app/new_post" New Post
+                div.app__heading
+                    h2 Knowledege 
+
+                div.app__header-right
+                    a href="/app/new_post" New Post
+                    a href="/app/admin_panel" Admin panel 
+
+                    form method="post" action="/logout"
+                        button type="submit" Logout
+
 
             == partial :drawer, locals: { class_name: "app__sidebar", placement: "left", size: "250px", open: true  } do
                 h2 Databases
@@ -43,6 +51,14 @@ html lang="en"
                                             a href="/app/#{post["post_id"]}" = post["title"]
                                 - else 
                                     p No posts yet
+                                - if database["permission_type"] == "owner"
+                                    p.error = error(:database)
+                                    form method="post" action="/database/delete"
+                                        input type="hidden" name="database_id" value=database["id"]
+                                        button type="submit" Delete database
+                                - else
+                                    div
+                                        p = "You don't own this database"
                 h2 Tags
                 ul.app__tags
                     - @database_tags&.each do |tag|
@@ -50,7 +66,7 @@ html lang="en"
 
                 form.app__create-database method="post" action="/database/new" 
                     div
-                        p = error(:name)
+                        p.error = error(:name)
                         label for="name" Name
                         input type="text" name="name" id="name" value=value(:name)
                     button type="submit" Add New Database

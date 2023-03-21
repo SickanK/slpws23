@@ -20,6 +20,14 @@ def get_post(post_id)
   return post
 end
 
+def edit_post(post_id, title, content)
+  db = connect_to_db()
+
+  db.execute("UPDATE Post SET title = ?, content = ? WHERE post_id = ?", [title, content, post_id])
+
+  db.close
+end
+
 # Tags
 def titleize(string)
   string.split.map(&:capitalize).join(" ")
@@ -161,5 +169,158 @@ def delete_tag(tag_id)
   db.execute("DELETE FROM Tag WHERE tag_id = ?", [tag_id])
   db.execute("DELETE FROM PostTagRel WHERE tag_id = ?", [tag_id])
   db.execute("DELETE FROM TagDatabaseRel WHERE tag_id = ?", [tag_id])
+  db.close
+end
+
+def delete_post(post_id)
+  db = connect_to_db()
+
+  db.execute("DELETE FROM Post WHERE post_id = ?", [post_id])
+  db.execute("DELETE FROM PostTagRel WHERE post_id = ?", [post_id])
+
+  db.close
+end
+
+def delete_database(database_id, user_id)
+  db = connect_to_db()
+
+  owner = db.execute(%{
+    SELECT
+      UserDatabaseRel.user_id as owner_id
+    FROM
+      UserDatabaseRel
+    WHERE
+      UserDatabaseRel.database_id = ? AND UserDatabaseRel.user_id = ? AND UserDatabaseRel.permissions = 'owner'
+  }.gsub(/\s+/, " ").strip, [database_id, user_id]).first
+
+  if owner.nil? || owner.empty? || owner["owner_id"] != user_id
+    db.close
+    raise "userNotOwner"
+  end
+
+  db.execute("DELETE FROM Database WHERE database_id = ?", [database_id])
+  db.execute("DELETE FROM UserDatabaseRel WHERE database_id = ?", [database_id])
+  db.execute("DELETE FROM TagDatabaseRel WHERE database_id = ?", [database_id])
+
+  # delete all posts
+  db.execute("DELETE FROM Post WHERE database_id = ?", [database_id])
+  db.execute("DELETE FROM PostTagRel WHERE post_id IN (SELECT post_id FROM Post WHERE database_id = ?)", [database_id])
+
+  db.close
+end
+
+def remove_tag_from_post(tag_id, post_id)
+  db = connect_to_db()
+
+  db.execute("DELETE FROM PostTagRel WHERE tag_id = ? AND post_id = ?", [tag_id, post_id])
+
+  db.close
+end
+
+def get_owned_databases(user_id)
+  db = connect_to_db()
+
+  # Fetch databases owned by the user
+  owned_databases = db.execute(%{
+    SELECT
+      Database.database_id,
+      Database.name,
+      Database.created_at,
+      Database.updated_at,
+      UserDatabaseRel.permission_type
+    FROM
+      Database
+    INNER JOIN UserDatabaseRel ON Database.database_id = UserDatabaseRel.database_id
+    WHERE
+      UserDatabaseRel.user_id = ? AND UserDatabaseRel.permission_type = 'owner'
+  }.gsub(/\s+/, " ").strip, [user_id])
+
+  db.close
+
+  # Add the viewers for each owned database
+  owned_databases.each do |database|
+    database["viewers"] = get_database_viewers(database["database_id"])
+  end
+
+  return owned_databases
+end
+
+def get_database_viewers(database_id)
+  db = connect_to_db()
+
+  viewers = db.execute(%{
+    SELECT
+      User.user_id,
+      User.email,
+      UserDatabaseRel.permission_type
+    FROM
+      User
+      INNER JOIN UserDatabaseRel ON User.user_id = UserDatabaseRel.user_id
+    WHERE
+      UserDatabaseRel.database_id = ?
+      AND UserDatabaseRel.permission_type = 'viewer'
+  }.gsub(/\s+/, " ").strip, [database_id])
+
+  db.close
+
+  return viewers
+end
+
+def get_owned_databases_with_permissions(user_id)
+  owned_databases = get_owned_databases(user_id)
+
+  owned_databases.each do |database|
+    database["viewers"] = get_database_viewers(database["database_id"])
+  end
+
+  return owned_databases
+end
+
+def add_user_by_email_to_database(database_id, email, user_id)
+  db = connect_to_db()
+
+  owner = db.execute(%{
+    SELECT
+      UserDatabaseRel.user_id as owner_id FROM UserDatabaseRel
+    WHERE
+      UserDatabaseRel.database_id = ? AND UserDatabaseRel.user_id = ? AND UserDatabaseRel.permission_type = 'owner'
+    }.gsub(/\s+/, " ").strip, [database_id, user_id]).first
+
+  if owner.nil? || owner.empty? || owner["owner_id"] != user_id
+    db.close
+    raise "userNotOwner"
+  end
+
+  user = db.execute("SELECT * FROM User WHERE email = ?", [email]).first
+
+  if user.nil?
+    db.close
+    raise "userNotExist"
+  end
+
+  user_already_exist = db.execute("SELECT * FROM UserDatabaseRel WHERE user_id = ? AND database_id = ?", [user["user_id"], database_id]).first
+
+  if user_already_exist
+    db.close
+    raise "userAlreadyInDatabase"
+  end
+
+  db.execute("INSERT INTO UserDatabaseRel (user_id, database_id, permission_type) VALUES (?, ?, ?)", [user["user_id"], database_id, "viewer"])
+
+  db.close
+
+  return user
+end
+
+def remove_user_from_database(database_id, user_id)
+  db = connect_to_db()
+
+  db.execute(%{
+    DELETE UserDatabaseRel
+    FROM UserDatabaseRel
+    INNER JOIN Database ON UserDatabaseRel.database_id = Database.database_id
+    WHERE UserDatabaseRel.user_id = ? AND UserDatabaseRel.permission_type = 'owner'
+  }.gsub(/\s+/, " ").strip, [user_id])
+
   db.close
 end

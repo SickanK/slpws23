@@ -2,6 +2,10 @@
 
 header.view-post__header
     h2 = @post["title"]
+    form method="post" action="/post/delete"
+        input type="hidden" name="post_id" value=@post["post_id"]
+        button type="submit" Delete post
+    a href="/app/#{@post["post_id"]}/edit" Edit post
     div.view-post__actions
 
 main.view-post__content
@@ -24,7 +28,22 @@ main.view-post__content
     - else
         ul.view-post__tags
             - @tags&.each do |tag|
-                li == partial :tag, locals: { id: tag["tag_id"], title: tag["title"] }
+                li.view-post__tag 
+                    span == partial :tag, locals: { id: tag["tag_id"], title: tag["title"] }
+                    span.view-post__remove
+                        form method="post" action="/post/tag/remove"
+                            input type="hidden" name="tag_id" value=tag["tag_id"]
+                            input type="hidden" name="post_id" value=@post["post_id"]
+                            input type="hidden" name="database_id" value=@post["database_id"]
+                            button type="submit" 
+                                svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                                    path stroke="none" d="M0 0h24v24H0z" fill="none"
+                                    path d="M4 7l16 0"
+                                    path d="M10 11l0 6"
+                                    path d="M14 11l0 6"
+                                    path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"
+                                    path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"
+
             li == partial :reveal_input, locals: { endpoint: "/tag/new", placeholder: "Rename tag", button_text: "New Tag", submit_text: "Add tag" } do
                 input type="text" name="title" value=""
                 input type="hidden" name="post_id" value=@post["post_id"]
