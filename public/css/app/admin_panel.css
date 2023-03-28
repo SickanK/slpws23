@@ -1,3 +1,7 @@
+.app__main {
+    overflow: auto;
+}
+
 .admin-panel__header {
     display: flex;
     align-items: center;

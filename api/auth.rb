@@ -9,8 +9,8 @@ require_relative "../utils/rate_limiter.rb"
 require_relative "../utils/form.rb"
 require_relative "../models/auth.rb"
 
-# Login
-
+# Displays the login page
+#
 get("/login") do
   @errors = session.delete(:errors)
   @values = session.delete(:values)
@@ -18,6 +18,12 @@ get("/login") do
   slim(:"routes/auth/login")
 end
 
+# Authenticates a user and redirects to the '/app' page upon successful login
+#
+# @param [String] email, The email address of the user
+# @param [String] password, The password for the user
+#
+# @see Function#get_user
 post("/login") do
   rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
   form = FormValidator.new(params)
@@ -45,8 +51,6 @@ post("/login") do
     else
       password_digest = result["password_digest"]
 
-      p BCrypt::Password.new(password_digest) == password
-
       raise "Fel användarnamn eller lösenord" if !BCrypt::Password.new(password_digest) == password
     end
   end
@@ -61,8 +65,8 @@ post("/login") do
   redirect("/app")
 end
 
-# Signup
-
+# Displays the signup page
+#
 get("/signup") do
   @errors = session.delete(:errors)
   @values = session.delete(:values)
@@ -70,6 +74,13 @@ get("/signup") do
   slim(:"routes/auth/signup")
 end
 
+# Registers a new user and redirects to the '/app' page upon successful registration
+#
+# @param [String] name, The name of the new user
+# @param [String] email, The email address of the new user
+# @param [String] password, The password for the new user
+#
+# @see Function#new_user
 post("/signup") do
   rate_limiter = RateLimiter.new(REDIS, request, 8, 10)
   form = FormValidator.new(params)
@@ -115,6 +126,9 @@ post("/signup") do
   end
 end
 
+# Logs out a user and redirects to the home page
+#
+# @see Function#delete_user_session
 post("/logout") do
   session.delete(:user_id)
   redirect("/")

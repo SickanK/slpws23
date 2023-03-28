@@ -2,6 +2,15 @@ require "date"
 require "sinatra/reloader"
 require_relative "../app.rb"
 
+# Creates a new user and inserts it into the database
+#
+# @param [String] name The name of the user
+# @param [String] email The email of the user
+# @param [String] password_digest The hashed password of the user
+#
+# @return [Integer] The ID of the new user
+#
+# @raise [Exception] if there is a conflict with the name or email already existing in the database
 def new_user(name, email, password_digest)
   db = connect_to_db()
 
@@ -30,6 +39,17 @@ def new_user(name, email, password_digest)
   end
 end
 
+# Get User
+#
+# Retrieves a user from the database based on their email or name.
+#
+# @param [String] identifier email or name of the user
+# @return [Hash]
+#   * :user_id [Integer] the ID of the user
+#   * :name [String] the name of the user
+#   * :email [String] the email of the user
+#   * :password [String] the encrypted password of the user
+# @return [nil] if the user is not found
 def get_user(identifier)
   db = connect_to_db()
 
