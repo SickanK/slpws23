@@ -22,10 +22,6 @@ main.view-tag__content
                 label for="content" Content
                 textarea name="content" id="content"
                     == value(:content)
-            div
-                p.error = error(:tags)
-                label for="tags" Tags
-                input type="text" name="tags" id="tags" value=value(:tags)
             div 
                 p.error = error(:database_id)
                 label for="database_id" Database
