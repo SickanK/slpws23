@@ -215,7 +215,7 @@ post("/database/delete") do
   send_response(form, rate_limiter, request.referrer) if !form.success?
 
   begin
-    delete_database(params[:database_id])
+    delete_database(params[:database_id], session[:user_id])
   rescue Exception => e
     form.error(:database) { raise ClearField, "Du äger inte denna databasen" if e.message == "userNotOwner" }
   end
@@ -369,7 +369,7 @@ post("/database/user/remove") do
 
   send_response(form, rate_limiter, request.referrer) if !form.success?
 
-  remove_user_from_database(params[:database_id], params[:user_id])
+  remove_user_from_database(params[:database_id], params[:user_id], session[:user_id])
 
   redirect(request.referrer)
 end
