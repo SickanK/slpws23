@@ -24,7 +24,7 @@ end
 # @param [Integer] database_id The ID of the database where the post will be created
 #
 # @return [Integer] the ID of the newly created post
-def new_post(title, content, database_id)
+def new_post(title, content, database_id, user_id)
   db = connect_to_db()
 
   permission = db.execute("SELECT * FROM UserDatabaseRel WHERE user_id = ? AND database_id = ?", [user_id, database_id]).first

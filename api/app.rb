@@ -86,7 +86,12 @@ post("/post/new") do
 
   send_response(form, rate_limiter, "/app/post/new") if !form.success?
 
-  new_post_id = new_post(params[:title], params[:content], params[:database_id])
+  new_post_id = new_post(params[:title], params[:content], params[:database_id], session[:user_id])
+
+  if new_post_id.nil?
+    redirect("/app")
+  end
+
   add_tags_to_post_and_database(new_post_id, params[:database_id], params[:tags].split(" "))
 
   redirect("/app/#{new_post_id}")

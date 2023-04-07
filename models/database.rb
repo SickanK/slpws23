@@ -270,6 +270,5 @@ def get_databases(user_id)
     database["posts"] = [] if database["posts"].nil?
     database["posts"].push(post)
   end
-
   return databases
 end
