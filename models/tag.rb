@@ -134,7 +134,7 @@ end
 #   * :tags [Array<Hash>]
 #       * :tag_id [Integer] The ID of the tag
 #       * :title [String] The title of the tag
-def get_posts_for_tag(tag_id)
+def get_posts_for_tag_and_user(tag_id, user_id)
   db = connect_to_db()
 
   post_results = db.execute(%{
@@ -145,9 +145,12 @@ def get_posts_for_tag(tag_id)
     FROM
       Post
       INNER JOIN PostTagRel ON Post.post_id = PostTagRel.post_id
+      INNER JOIN Tag ON PostTagRel.tag_id = Tag.tag_id
+      INNER JOIN UserDatabaseRel ON Post.database_id = UserDatabaseRel.database_id
     WHERE
       PostTagRel.tag_id = ?
-}, [tag_id])
+      AND UserDatabaseRel.user_id = ?
+}.gsub(/\s+/, " ").strip, [tag_id, user_id])
 
   posts = {}
 
@@ -172,7 +175,7 @@ def get_posts_for_tag(tag_id)
       INNER JOIN Tag ON PostTagRel.tag_id = Tag.tag_id
     WHERE
       Post.post_id IN (#{placeholders})
-}, post_ids)
+}.gsub(/\s+/, " ").strip, post_ids)
 
   db.close()
 

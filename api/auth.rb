@@ -23,7 +23,7 @@ end
 # @param [String] email, The email address of the user
 # @param [String] password, The password for the user
 #
-# @see Function#get_user
+# @see get_user
 post("/login") do
   rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
   form = FormValidator.new(params)
@@ -80,7 +80,7 @@ end
 # @param [String] email, The email address of the new user
 # @param [String] password, The password for the new user
 #
-# @see Function#new_user
+# @see new_user
 post("/signup") do
   rate_limiter = RateLimiter.new(REDIS, request, 8, 10)
   form = FormValidator.new(params)
@@ -128,7 +128,7 @@ end
 
 # Logs out a user and redirects to the home page
 #
-# @see Function#delete_user_session
+# @see delete_user_session
 post("/logout") do
   session.delete(:user_id)
   redirect("/")

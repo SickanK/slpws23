@@ -58,8 +58,8 @@ end
 # @param [String] tags, A space-separated list of tags for the new post
 # @param [String] database_id, The ID of the database where the new post will be stored
 #
-# @see Function#new_post
-# @see Function#add_tags_to_post_and_database
+# @see new_post
+# @see add_tags_to_post_and_database
 post("/post/new") do
   rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
   form = FormValidator.new(params)
@@ -96,7 +96,7 @@ end
 #
 # @param [String] post_id, The ID of the post to be deleted
 #
-# @see Function#delete_post
+# @see delete_post
 post("/post/delete") do
   rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
   form = FormValidator.new(params)
@@ -108,7 +108,11 @@ post("/post/delete") do
 
   send_response(form, rate_limiter, request.referrer) if !form.success?
 
-  delete_post(params[:post_id])
+  perm = delete_post(params[:post_id])
+
+  if perm.nil?
+    redirect("/app")
+  end
 
   redirect("/app")
 end
@@ -119,7 +123,7 @@ end
 # @see get_post
 # @see get_tags_for_post
 get("/app/:post_id") do
-  @post = get_post(params[:post_id])
+  @post = get_post(params[:post_id], session[:user_id])
 
   if @post.nil?
     redirect("/app")
@@ -136,10 +140,15 @@ end
 # Displays the edit page for a particular post
 #
 # @param [Integer] :post_id, the ID of the post to be edited
-# @see Model#get_post
-# @see Model#get_tags_for_post
+# @see get_post
+# @see get_tags_for_post
 get("/app/:post_id/edit") do
-  @post = get_post(params[:post_id])
+  @post = get_post(params[:post_id], session[:user_id])
+
+  if @post.nil?
+    redirect("/app")
+  end
+
   @tags = get_tags_for_post(params[:post_id])
 
   slim(:"routes/app/post/edit", :layout => :"layouts/app")
@@ -151,7 +160,7 @@ end
 # @param [String] title, The new title of the post
 # @param [String] content, The new content of the post
 #
-# @see Function#edit_post
+# @see edit_post
 post("/post/edit") do
   rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
   form = FormValidator.new(params)
@@ -171,7 +180,11 @@ post("/post/edit") do
 
   send_response(form, rate_limiter, request.referrer) if !form.success?
 
-  edit_post(params[:post_id], params[:title], params[:content])
+  perm = edit_post(params[:post_id], params[:title], params[:content], session[:user_id])
+
+  if perm.nil?
+    redirect("/app")
+  end
 
   redirect("/app/#{params[:post_id]}")
 end
@@ -180,7 +193,7 @@ end
 #
 # @param [String] name, The name of the new database
 #
-# @see Function#new_database
+# @see new_database
 post("/database/new") do
   rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
   form = FormValidator.new(params)
@@ -202,7 +215,7 @@ end
 #
 # @param [String] post_id, The ID of the post to be deleted
 #
-# @see Function#delete_post
+# @see delete_database
 post("/database/delete") do
   rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
   form = FormValidator.new(params)
@@ -229,7 +242,7 @@ end
 #
 # @param [String] database_id, The ID of the database to be deleted
 #
-# @see Function#delete_database
+# @see delete_database
 post("/tag/new") do
   rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
   form = FormValidator.new(params)
@@ -258,11 +271,11 @@ end
 # Displays all posts associated with a specific tag
 #
 # @param [Integer] :tag_id, the ID of the tag
-# @see Function#get_tag
-# @see Function#get_posts_for_tag
+# @see get_tag
+# @see get_posts_for_tag_and_user
 get("/app/tag/:tag_id") do
   @tag = get_tag(params[:tag_id])
-  @posts = get_posts_for_tag(params[:tag_id])
+  @posts = get_posts_for_tag_and_user(params[:tag_id], session[:user_id])
 
   slim(:"routes/app/tag/show", :layout => :"layouts/app")
 end
@@ -271,7 +284,7 @@ end
 #
 # @param [String] tag_id, The ID of the tag to be deleted
 #
-# @see Function#delete_tag
+# @see delete_tag
 post("/tag/delete") do
   rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
   form = FormValidator.new(params)
@@ -293,7 +306,7 @@ end
 # @param [String] tag_id, The ID of the tag to be removed
 # @param [String] post_id, The ID of the post from which the tag will be removed
 #
-# @see Function#remove_tag_from_post
+# @see remove_tag_from_post
 post("/post/tag/remove") do
   rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
   form = FormValidator.new(params)
@@ -319,7 +332,7 @@ end
 # @param [String] database_id, The ID of the database to which the user will be added
 # @param [String] email, The email of the user to be added
 #
-# @see Function#add_user_by_email_to_database
+# @see add_user_by_email_to_database
 post("/database/user/add") do
   rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
   form = FormValidator.new(params)
@@ -353,7 +366,7 @@ end
 # @param [String] database_id, The ID of the database from which the user will be removed
 # @param [String] user_id, The ID of the user to be removed from the database
 #
-# @see Function#remove_user_from_database
+# @see #remove_user_from_database
 post("/database/user/remove") do
   rate_limiter = RateLimiter.new(REDIS, request, 6, 10)
   form = FormValidator.new(params)
