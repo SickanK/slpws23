@@ -42,6 +42,7 @@ end
 # @param [String] tag the name of the tag to add
 # @return [Integer] the ID of the tag that was added or already existed
 def add_tag_if_not_exist(tag)
+  tag = tag.strip
   tag_id = get_tag_id(tag)
 
   unless tag_id

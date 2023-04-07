@@ -85,8 +85,6 @@ post("/signup") do
   rate_limiter = RateLimiter.new(REDIS, request, 8, 10)
   form = FormValidator.new(params)
 
-  p "Pornhub is the best"
-
   # Validate form
 
   form.validate(:name) do |name|
